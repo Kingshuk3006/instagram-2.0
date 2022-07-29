@@ -137,7 +137,7 @@ const Post = ({caption, img, userImg, username, id}) => {
           <div className="space-y-3 overflow-scroll scrollbar-thin scrollbar-track-blue-400">
             {comments.map (comment => {
               return (
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between" key={comment.data ().timestamp}>
                   <div className="flex items-center justify-start space-x-2">
                     <img
                       src={comment.data ().userimg}
