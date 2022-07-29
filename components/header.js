@@ -8,8 +8,15 @@ import {GrUploadOption} from 'react-icons/gr';
 import {HiOutlineUserGroup} from 'react-icons/hi';
 import {FaRegHeart} from 'react-icons/fa';
 import {GiHamburgerMenu} from 'react-icons/gi';
+import {useSession, signIn, signOut} from 'next-auth/react'
+import Link from 'next/link';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../atoms/modalAtom';
 
 const Header = () => {
+  const {data: session, status} = useSession()
+  console.log(session)
+  const [open, setOpen] = useRecoilState(modalState)
   return (
     <div>
       <nav className="flex items-center justify-between py-2 bg-slate-50 px-4 md:px-8 lg:px-16 xl:px-28 z-100 border-b-zinc-200 border-b">
@@ -31,22 +38,24 @@ const Header = () => {
         </div>
 
         <div className="flex flex-row items-center justify-end space-x-4 child:text-2xl">
+        <Link href="/">
           <AiFillHome className="hover:scale-125 ease-in-out duration-200 hidden md:block" />
-          <div className="relative hidden md:block">
+        </Link>
+          {session ? <div className='flex flex-row items-center justify-end space-x-4 child:text-2xl'><div className="relative hidden md:block">
             <HiOutlinePaperAirplane className="hover:scale-125 ease-in-out duration-200 rotate-45" />
             <div className="absolute -top-3 -right-1 text-sm bg-red-500 rounded-full h-5 w-5 text-white flex items-center justify-center animate-pulse">
               3
             </div>
           </div>
-          <GrUploadOption className="hover:scale-125 ease-in-out duration-200 hidden md:block" />
+          <GrUploadOption className="hover:scale-125 ease-in-out duration-200 hidden md:block" onClick={()=> setOpen(true)}/>
           <HiOutlineUserGroup className="hover:scale-125 ease-in-out duration-200 hidden md:block" />
           <FaRegHeart className="hover:scale-125 ease-in-out duration-200 hidden md:block" />
           <GiHamburgerMenu className="md:hidden" />
           <img
-            src="/person.jpg"
+            src={session?.user?.image}
             alt="person"
             className="w-10 h-10 cursor-pointer rounded-full object-cover"
-          />
+          /></div> : <h1 className='font-semibold cursor-pointer text-xl' onClick={()=> signIn()}>Sign In</h1>}
         </div>
       </nav>
     </div>

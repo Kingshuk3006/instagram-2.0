@@ -19,7 +19,7 @@ const Post = ({postData}) => {
         <div className="space-x-4 flex items-center">
           <div className="border-red-500 border-2 w-fit rounded-full flex items-center justify-center">
             <img
-              src={postData.userImage}
+              src='/suggestionperson/person1.jpg'
               alt="userImage"
               className="rounded-full p-0.5 object-cover w-12 h-12"
             />

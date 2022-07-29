@@ -1,21 +1,14 @@
 import Feed from '../components/Feed';
 import Header from '../components/header';
+import ModalComponent from '../components/Modal';
 
-export default function Home ({data}) {
+
+export default function Home () {
   return (
     <div>
       <Header />
-      <Feed data={data}/>
+      <Feed />
+      <ModalComponent/>
     </div>
   );
-}
-
-export async function getStaticProps () {
-  const res = await fetch ('https://jsonplaceholder.typicode.com/photos');
-  let data = await res.json ();
-  data = data.slice(0, 20)
-
-  return {
-    props: {data}
-  }
 }
