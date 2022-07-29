@@ -42,7 +42,7 @@ const ModalComponent = () => {
       caption: caption,
     });
 
-    console.log ('new Doc added with id', docRef.id);
+    // console.log ('new Doc added with id', docRef.id);
 
     const imageRef = ref (storage, `posts/${docRef.id}/image`);
 
@@ -57,9 +57,9 @@ const ModalComponent = () => {
       });
     });
 
-    setOpen(false)
-    setLoading(false)
-    setSelectedFile(null)
+    setOpen (false);
+    setLoading (false);
+    setSelectedFile (null);
   };
 
   const addImagetoPost = e => {

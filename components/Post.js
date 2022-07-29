@@ -1,29 +1,35 @@
 import React, {useEffect} from 'react';
 import {FiMoreHorizontal} from 'react-icons/fi';
-import {AiOutlineHeart} from 'react-icons/ai';
+import {AiOutlineHeart, AiFillHeart} from 'react-icons/ai';
 import {AiOutHeart} from 'react-icons/ai';
 import {RiChat3Line} from 'react-icons/ri';
 import {HiOutlinePaperAirplane} from 'react-icons/hi';
 import {RiBookmarkLine} from 'react-icons/ri';
 import {useState} from 'react';
 import {BsEmojiSmile} from 'react-icons/bs';
-import Moment from 'react-moment'
+import Moment from 'react-moment';
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
 import {db} from '../firebase';
-import {useSession, signIn, signOut} from 'next-auth/react';
+import {useSession} from 'next-auth/react';
 
 const Post = ({caption, img, userImg, username, id}) => {
   const {data: session, status} = useSession ();
+  // console.log(session)
   const [comment, setComment] = useState ('');
   const [comments, setComments] = useState ([]);
   const [loading, setLoading] = useState (false);
+  const [hasliked, setHasLiked] = useState (false);
+  const [likes, setLikes] = useState ([]);
   // console.log (postData);
   const addComment = async e => {
     e.preventDefault ();
@@ -43,6 +49,16 @@ const Post = ({caption, img, userImg, username, id}) => {
     setLoading (false);
   };
 
+  const likePost = async () => {
+    if (hasliked) {
+      await deleteDoc (doc (db, 'posts', id, 'likes', session.user.uid));
+    } else {
+      await setDoc (doc (db, 'posts', id, 'likes', session.user.uid), {
+        username: session.user.username,
+      });
+    }
+  };
+
   useEffect (
     () => {
       return onSnapshot (
@@ -55,8 +71,29 @@ const Post = ({caption, img, userImg, username, id}) => {
         }
       );
     },
-    [db]
+    [db, id]
   );
+
+  useEffect (
+    () => {
+      return onSnapshot (collection (db, 'posts', id, 'likes'), snapshot => {
+        setLikes (snapshot.docs);
+      });
+    },
+    [db, id]
+  );
+  console.log (likes);
+
+  useEffect (
+    () => {
+      setHasLiked (
+        likes.findIndex (like => like.id === session.user.uid) !== -1
+      );
+    },
+    [likes]
+  );
+
+  //  console.log(hasliked)
 
   return (
     <div className="border rounded-md my-4">
@@ -79,22 +116,28 @@ const Post = ({caption, img, userImg, username, id}) => {
       </div>
       <div className="text-3xl flex justify-between px-4 my-4">
         <div className=" flex space-x-4">
-          <AiOutlineHeart className="hover:text-zinc-500" />
+          {hasliked
+            ? <AiFillHeart className="text-red-500 hover:scale-125 transition-all duration-300" onClick={likePost}/>
+            : <AiOutlineHeart
+                className={`hover:scale-125 transition-all duration-300}`}
+                onClick={likePost}
+              />}
           <RiChat3Line className="-rotate-90 hover:text-zinc-500" />
           <HiOutlinePaperAirplane className="hover:text-zinc-500" />
         </div>
         <RiBookmarkLine />
       </div>
+      <p className='-my-3 font-medium px-4'>{likes.length} likes</p>
       <div className="flex px-4 my-4 text-md">
         <span className="font-semibold mr-1">{username}</span>
-        <p className=''>{caption}</p>
+        <p className="">{caption}</p>
       </div>
       <div className="px-6 py-2">
         {comments.length > 0 &&
           <div className="space-y-3 overflow-scroll scrollbar-thin scrollbar-track-blue-400">
             {comments.map (comment => {
               return (
-                <div className='flex items-center justify-between'>
+                <div className="flex items-center justify-between">
                   <div className="flex items-center justify-start space-x-2">
                     <img
                       src={comment.data ().userimg}
@@ -108,8 +151,8 @@ const Post = ({caption, img, userImg, username, id}) => {
                       <span>{comment.data ().comment}</span>
                     </div>
                   </div>
-                  <Moment fromNow className='text-sm opacity-50'>
-                    {comment.data().timestamp?.toDate()}
+                  <Moment fromNow className="text-sm opacity-50">
+                    {comment.data ().timestamp?.toDate ()}
                   </Moment>
                 </div>
               );
