@@ -25,7 +25,8 @@ const ModalComponent = () => {
   const [caption, setCaption] = useState (null);
 
   const uploadPost = async () => {
-    if (loading) {
+    if (loading | selectedFile === null ) {
+      alert( loading ? 'Post is uploading' : 'Add a image');
       return;
     }
     setLoading (true);
